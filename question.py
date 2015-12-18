@@ -13,12 +13,12 @@ class Question(object):
     @classmethod
     def load_from_training_set(cls, string):
         return cls.load_from_set(string, cls.TRAINING)
-    
+
     @classmethod
     def load_from_test_set(cls, string):
         return cls.load_from_set(string, cls.TEST)
 
-    @classmethod 
+    @classmethod
     def training_get(cls, question):
         id_ = question[0]
         q = question[1]
@@ -26,7 +26,7 @@ class Question(object):
         ansers = question[3:]
         return cls(id_, q, ansers, c_anser)
 
-    @classmethod 
+    @classmethod
     def test_get(cls, question):
         id_ = question[0]
         q = question[1]
@@ -46,3 +46,4 @@ class Question(object):
 
 if __name__ == "__main__":
     qs = Question.load_from_training_set("training_set.tsv")
+    ts = Question.load_from_test_set("validation_set.tsv")
