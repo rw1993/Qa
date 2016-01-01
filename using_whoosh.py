@@ -4,6 +4,7 @@ from whoosh.fields import *
 import os
 from question import Question
 from whoosh.qparser import QueryParser
+from sklearn.cluster import KMeans
 
 def build_ix(questions):
     if not os.path.exists('index'):
@@ -39,22 +40,39 @@ def get_answers(questions, ix):
     for q in questions:
         get_ans(q, ix)
 
+
 def chinese_student(q):
     # This function is inspired by Chinese stuendets
     # Choose shortest One if ohter answer are long
     # Choose B if two answers long two answers are short
-    # else choose C
     # Here we can use kmeans where k = 2 and numbers of input are 4
     answers = q.answers
-    lenths = [len(answer) for answer in answers]
-    max_lenth = max(lenths)
-    min_lenth = min(lenths)
-    def normalize(lenth):
-        lenth = float(lenth)
-        l_range = float(max_lenth - min_lenth)
-        return (lenth - min_lenth) / l_range
-    lenths = [normalize(lenth) for lenth in lenths]
-
+    lengths = [len(answer) for answer in answers]
+    max_length = max(lengths)
+    min_length = min(lengths)
+    if max_length - min_length == 0:
+        print (q.id, "C")
+        return
+    l_range = float(max_length - min_length)
+    def normalize(length):
+        length = float(length)
+        return (length - min_length) / l_range
+    lengths = [normalize(length) for length in lengths]
+    lengths = map(lambda length:[length], lengths)
+    c = KMeans(n_clusters=2)
+    result = c.fit_predict(lengths)
+    result = list(result)
+    if sum(result) == 2:
+        print (q.id, "B")
+    else:
+        if sum(result) == 3:
+            index = result.index(0)
+        else:
+            index = result.index(1)
+        a_map = {0:'A', 1:'B', 2:'C', 3:'D'}
+        ans = a_map[index]
+        print (q.id, ans)
+    print (q.id ,"C")
 
 
 def get_ans(q, ix):
@@ -63,14 +81,13 @@ def get_ans(q, ix):
         query = QueryParser("question", ix.schema).parse(question)
         rs = searcher.search(query)
         if not rs:
-            pass
-            # print q.id,"C"
+            chinese_student(q)
         else:
             ans = search_ans(rs, q)
             if not ans:
-                print q.id, "C"
+                chinese_student(q)
             else:
-                print q.id, ans
+                print (q.id, ans)
 
 
 def search_ans(rs, q):
