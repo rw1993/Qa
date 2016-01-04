@@ -81,13 +81,15 @@ def get_ans(q, ix):
         query = QueryParser("question", ix.schema).parse(question)
         rs = searcher.search(query)
         if not rs:
-            chinese_student(q)
+            #chinese_student(q)
+            pass
         else:
             ans = search_ans(rs, q)
             if not ans:
-                chinese_student(q)
+                #chinese_student(q)
+                pass
             else:
-                print (q.id, ans)
+                print q.id, ans
 
 
 def search_ans(rs, q):

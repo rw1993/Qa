@@ -34,6 +34,7 @@ def chinese_student(q):
     result = list(result)
     if sum(result) == 2:
         print q.id, "B"
+        return
     else:
         if sum(result) == 3:
             index = result.index(0)
@@ -42,6 +43,7 @@ def chinese_student(q):
         a_map = {0:'A', 1:'B', 2:'C', 3:'D'}
         ans = a_map[index]
         print q.id, ans
+        return
     print q.id ,"C"
 
 
@@ -75,14 +77,15 @@ def get_answers(questions, ix):
             try:
                 get_answer(q, ix, searcher)
             except:
-                chinese_student(q)
+                pass
+                #chinese_student(q)
 
 
 def get_answer(q, ix, searcher):
     answers = [answer.decode("utf8") for answer in q.answers]
     
     def query_from_answer(answer):
-        #search answer from right answer
+        #search answer from right answer, add tfidf here?
         query = QueryParser("question", ix.schema).parse(answer)
         results = searcher.search(query)
         return results[0] if results else None
@@ -98,12 +101,14 @@ def get_answer(q, ix, searcher):
             dics = build_dics(sentences)
             vectors = word_to_dic(sentences, dics)
             sims = map(count_similarity, vectors)
+            print question
             return sims[0]
 
     similarities = map(compare_question, questions)
     max_sim = max(similarities)
     if max_sim == 0:
-        chinese_student(q)
+        pass
+        #chinese_student(q)
     else:
         index = similarities.index(max_sim)
         print q.id, n_a_map[index]

@@ -3,21 +3,43 @@
 class Question(object):
     TRAINING = 0
     TEST = 1
+    A_N_MAP = {'A': 0, 'B': 1, 'C': 2, 'D': 3}
+    N_A_MAP = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
     
     @property
-    def correct_ans_content(self):
-        index_map = {'A':0, 'B':1, 'C':2, 'D':3}
-        if not self.correct_ans:
+    def correct_answer_content(self):
+        if not self.correct_answer:
             return 
-        index = index_map[self.correct_ans]
+        index = self.A_N_MAP[self.correct_answer]
         return self.answers[index]
+    
+    def decode(self, attr):
+        try:
+            return attr.decode("utf8")
+        except:
+            return u""
 
+    @property
+    def id(self):
+        return self.decode(self._id)
+
+    @property
+    def question(self):
+        return self.decode(self._question)
+
+    @property
+    def answers(self):
+        return map(self.decode, self._answers)
+
+    @property
+    def correct_answer(self):
+        return self.decode(self._correct_ans)
 
     def __init__(self, id_, question, answers, c_ans=None):
-        self.id = id_
-        self.question = question
-        self.answers = answers
-        self.correct_ans = c_ans
+        self._id = id_
+        self._question = question
+        self._answers = answers
+        self._correct_ans = c_ans
 
     @classmethod
     def load_from_training_set(cls):
@@ -53,6 +75,13 @@ class Question(object):
                 return [cls.test_get(question) for question in questions]
 
 
+questions_with_answer = Question.load_from_training_set()
+
+
+questions_without_answer = Question.load_from_test_set()
+
+
 if __name__ == "__main__":
-    qs = Question.load_from_training_set()
-    ts = Question.load_from_test_set()
+    q = questions_with_answer[0]
+    print q.question
+    print q.answers
